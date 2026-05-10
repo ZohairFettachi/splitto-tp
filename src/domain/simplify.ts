@@ -12,10 +12,13 @@ import type { Balances, Settlement } from './types';
 export function simplifyDebts(balances: Balances): Settlement[] {
   const creditors = Object.entries(balances)
     .filter(([, amount]) => amount > 0)
-    .map(([memberId, amount]) => ({ memberId, amount }));
+    .map(([memberId, amount]) => ({ memberId, amount: toCents(amount) }));
   const debtors = Object.entries(balances)
     .filter(([, amount]) => amount < 0)
-    .map(([memberId, amount]) => ({ memberId, amount: Math.abs(amount) }));
+    .map(([memberId, amount]) => ({ memberId, amount: Math.abs(toCents(amount)) }));
+
+  creditors.sort((a, b) => b.amount - a.amount);
+  debtors.sort((a, b) => b.amount - a.amount);
 
   const settlements: Settlement[] = [];
   let creditorIndex = 0;
@@ -29,7 +32,7 @@ export function simplifyDebts(balances: Balances): Settlement[] {
     settlements.push({
       from: debtor.memberId,
       to: creditor.memberId,
-      amount,
+      amount: amount / 100,
     });
 
     creditor.amount -= amount;
@@ -40,4 +43,8 @@ export function simplifyDebts(balances: Balances): Settlement[] {
   }
 
   return settlements;
+}
+
+function toCents(amount: number): number {
+  return Math.round((amount + Number.EPSILON) * 100);
 }
