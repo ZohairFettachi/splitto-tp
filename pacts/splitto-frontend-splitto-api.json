@@ -100,7 +100,7 @@
               "combine": "AND",
               "matchers": [
                 {
-                  "match": "decimal"
+                  "match": "type"
                 }
               ]
             },

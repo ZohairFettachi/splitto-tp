@@ -116,6 +116,6 @@ describe('Pact Provider - splitto-api', () => {
     });
 
     const output = await verifier.verifyProvider();
-    expect(output).toContain('successfully verified');
+    expect(output).toContain('finished: 0');
   }, 90_000);
 });

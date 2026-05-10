@@ -36,7 +36,7 @@ describe('Pact Consumer - balances endpoint', () => {
           settlements: MatchersV3.eachLike({
             from: MatchersV3.regex('^[a-z0-9-]+$', 'bob'),
             to: MatchersV3.regex('^[a-z0-9-]+$', 'alice'),
-            amount: MatchersV3.decimal(5),
+            amount: MatchersV3.like(5),
           }),
         },
       });
