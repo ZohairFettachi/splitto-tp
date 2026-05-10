@@ -33,4 +33,26 @@ describe('simplifyDebts', () => {
     const balances: Balances = { a: 0, b: 0, c: 0 };
     expect(simplifyDebts(balances)).toEqual([]);
   });
+
+  it('handles multiple creditors and debtors with deterministic chaining', () => {
+    const balances: Balances = { a: 30, b: 20, c: -25, d: -25 };
+    expect(simplifyDebts(balances)).toEqual([
+      { from: 'c', to: 'a', amount: 25 },
+      { from: 'd', to: 'a', amount: 5 },
+      { from: 'd', to: 'b', amount: 20 },
+    ]);
+  });
+
+  it('ignores non-active members and only settles between debtors and creditors', () => {
+    const balances: Balances = { a: 40, b: 0, c: -10, d: -30, e: 0 };
+    const result = simplifyDebts(balances);
+
+    expect(result).toEqual([
+      { from: 'd', to: 'a', amount: 30 },
+      { from: 'c', to: 'a', amount: 10 },
+    ]);
+    expect(result.every((s) => s.amount > 0)).toBe(true);
+    expect(result.every((s) => ['c', 'd'].includes(s.from))).toBe(true);
+    expect(result.every((s) => s.to === 'a')).toBe(true);
+  });
 });

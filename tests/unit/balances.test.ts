@@ -172,6 +172,52 @@ describe('computeBalances', () => {
       carol: -19.19,
     });
   });
+
+  it('keeps full amount on payer when equal split has no beneficiaries', () => {
+    const expense = makeExpense({
+      amount: 25,
+      paidBy: 'alice',
+      split: { mode: 'equal', beneficiaries: [] },
+    });
+
+    const result = computeBalances(makeGroup(), [expense]);
+    expect(result).toEqual({
+      alice: 25,
+      bob: 0,
+      carol: 0,
+    });
+  });
+
+  it('keeps full amount on payer when weighted split has no positive weights', () => {
+    const expense = makeExpense({
+      amount: 80,
+      paidBy: 'alice',
+      split: { mode: 'weighted', weights: { alice: 0, bob: 0, carol: -1 } },
+    });
+
+    const result = computeBalances(makeGroup(), [expense]);
+    expect(result).toEqual({
+      alice: 80,
+      bob: 0,
+      carol: 0,
+    });
+  });
+
+  it('distributes weighted remainder to biggest fractional share first', () => {
+    const expense = makeExpense({
+      amount: 0.05,
+      paidBy: 'alice',
+      split: { mode: 'weighted', weights: { alice: 1, bob: 1, carol: 3 } },
+    });
+
+    const result = computeBalances(makeGroup(), [expense]);
+    expect(result).toEqual({
+      alice: 0.04,
+      bob: -0.01,
+      carol: -0.03,
+    });
+    expect(sumBalances(result)).toBe(0);
+  });
 });
 
 function sumBalances(balances: Record<string, number>): number {
