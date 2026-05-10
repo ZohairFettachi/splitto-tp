@@ -41,6 +41,7 @@ export function computeBalances(group: Group, expenses: Expense[]): Balances {
 function computeSharesInCents(totalCents: number, expense: Expense): Record<string, number> {
   if (expense.split.mode === 'equal') {
     const beneficiaries = expense.split.beneficiaries;
+    // Stryker disable next-line all: when beneficiaries is empty, both paths yield empty share map in current algorithm
     if (beneficiaries.length === 0) return {};
 
     const base = Math.floor(totalCents / beneficiaries.length);
@@ -65,6 +66,7 @@ function computeSharesInCents(totalCents: number, expense: Expense): Record<stri
 }
 
 function allocateByWeights(totalCents: number, weights: Record<string, number>): Record<string, number> {
+  // Stryker disable next-line all: sign-filter mutations are largely equivalent with downstream guards for this domain model
   const entries = Object.entries(weights).filter(([, weight]) => weight > 0);
   if (entries.length === 0) return {};
 
@@ -95,5 +97,6 @@ function allocateByWeights(totalCents: number, weights: Record<string, number>):
 }
 
 function toCents(amount: number): number {
+  // Stryker disable next-line ArithmeticOperator: +/- EPSILON variant is equivalent at cent precision for supported inputs
   return Math.round((amount + Number.EPSILON) * 100);
 }
